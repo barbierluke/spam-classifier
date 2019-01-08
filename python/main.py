@@ -25,12 +25,20 @@ def model_logreg(X_train, Y_train, X_test, Y_test):
     num_features = X_train.shape[0]    
     learning_rate = 0.1
     num_iterations = 1500
+    regularization_constant = 5
+
+    """
+    Diverging combos:
+    a = 0.1, lambda = 0.1
+    """
     
-    model = LogRegModel(num_features, learning_rate, num_iterations)
+    model = LogRegModel(num_features, learning_rate, num_iterations, regularization_constant)
     cost_hist_train = model.train(X_train,Y_train)
-    
+
+    accuracy_trainset = get_accuracy(X_train, Y_train, model.predict)    
     accuracy_testset = get_accuracy(X_test, Y_test, model.predict)
-    return cost_hist_train, accuracy_testset
+
+    return accuracy_trainset, accuracy_testset
 
 def model_NN(X, y, layer_dims):
     pass
@@ -71,5 +79,7 @@ if __name__ == "__main__":
     Y = y_data.reshape((1,y_data.shape[0]))
     X_train, Y_train, X_test, Y_test = split_data(X,Y)
 
-    cost_hist_train, acc_test = model_logreg(X_train, Y_train, X_test, Y_test)
+    acc_train, acc_test = model_logreg(X_train, Y_train, X_test, Y_test)
+    
+    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train))
     print("Logistic Regression Accuracy on Test Set: {}".format(acc_test))

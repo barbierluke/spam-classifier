@@ -14,10 +14,11 @@ class LogRegModel:
 
     prediction_threshold = 0.5
     
-    def __init__(self, num_features, learning_rate, num_iterations):
+    def __init__(self, num_features, learning_rate, num_iterations, regularization_constant):
         self.learning_rate = learning_rate
         self.dimensions = (1, num_features)
         self.num_iters = num_iterations
+        self.reg_constant = regularization_constant
         
         self._initialize_parameters()
 
@@ -34,7 +35,7 @@ class LogRegModel:
             A = self._activate(X_train)
             cost = self.compute_cost(A, Y_train)
             dZ = A - Y_train # simplify using derivative of sigmoid
-            dW = (1/m) * np.dot(dZ, X_train.T)
+            dW = (1/m) * ( np.dot(dZ, X_train.T) + self.reg_constant * self.parameters['W'])
             db = (1/m) * np.sum(dZ, axis=1, keepdims=True)
             self._update_parameters(dW, db)
 
@@ -47,7 +48,8 @@ class LogRegModel:
 
     def compute_cost(self, A, Y):
         m = Y.shape[1]
-        return (-1/m) * ( np.dot(Y, np.log(A).T) + np.dot(1-Y, np.log(1-A).T))
+        W = self.parameters["W"]
+        return (-1/m) * ( np.dot(Y, np.log(A).T) + np.dot(1-Y, np.log(1-A).T - self.reg_constant * np.dot(W,W.T) ))
             
     def _activate(self,X):
         W = self.parameters["W"]
@@ -63,7 +65,8 @@ class LogRegModel:
 
     def _initialize_parameters(self):
         self.parameters = {}
-        W = np.random.randn(self.dimensions[0],self.dimensions[1]) * 0.01 # make weights start smaller increases speed of logreg
+        # W = np.random.randn(self.dimensions[0],self.dimensions[1]) * 0.01 # make weights start smaller increases speed of logreg
+        W = np.zeros((self.dimensions[0], self.dimensions[1]))
         b = np.array([[0.0]])
         self.parameters["W"] = W
         self.parameters["b"] = b
