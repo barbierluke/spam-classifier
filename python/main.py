@@ -43,8 +43,8 @@ def model_logreg(X_train, Y_train, X_test, Y_test):
     print("Modeling Logistic Regression")
     
     num_features = X_train.shape[0]    
-    learning_rate = 2
-    num_iterations = 50000
+    learning_rate = 0.05
+    num_iterations = 1500
     regularization_constant = 0
 
     model = LogRegModel(num_features, learning_rate, num_iterations, regularization_constant)
@@ -56,6 +56,7 @@ def model_logreg(X_train, Y_train, X_test, Y_test):
     return accuracy_trainset, accuracy_testset
 
 def model_nn(X_train, Y_train, X_test, Y_test, layer_dims):
+    print("Modeling Neural Network w/ layers: {}".format(layer_dims))
     alpha = 0.05
     num_iters = 1000
 
@@ -83,11 +84,11 @@ if __name__ == "__main__":
     Y = y_data.reshape((1,y_data.shape[0]))
     X_train, Y_train, X_test, Y_test = split_data(X,Y)
     
-#    acc_train_log, acc_test_log = model_logreg(X_train, Y_train, X_test, Y_test)
+    acc_train_log, acc_test_log = model_logreg(X_train, Y_train, X_test, Y_test)
     layer_dims = [X_train.shape[0],20,20,20,20,20,20,20,1]
     acc_train_nn, acc_test_nn = model_nn(X_train, Y_train, X_test, Y_test, layer_dims)
     
-#    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train_log))
- #   print("Logistic Regression Accuracy on Test Set: {}".format(acc_test_log))
+    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train_log))
+    print("Logistic Regression Accuracy on Test Set: {}".format(acc_test_log))
     print("NN Accuracy on Train Set: {}".format(acc_train_nn))
     print("NN Accuracy on Test Set: {}".format(acc_test_nn))
