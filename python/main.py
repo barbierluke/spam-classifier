@@ -1,37 +1,58 @@
 #!/usr/bin/python3
 
+from __future__ import division
+import random
 import numpy as np
 from models.log_reg import LogRegModel
+from pdb import set_trace
 
-def get_accuracy(X_test, Y_test, function):
+def get_accuracy(X_test, Y_test, predict_func):
     """
-    Returns cost history AND classification accuracy
+    Returns classification accuracy
     """
-    return [0,0], 100
+    Y_predictions = predict_func(X_test)
+    correct = np.sum(Y_predictions == Y_test)
+    return (correct / Y_test.shape[1]) * 100
 
 def model_logreg(X_train, Y_train, X_test, Y_test):
     """
     Returns:
     - cost_history_train
-    - cost_history_test
     - accuracy on the test set
     """
-    learning_rate = 0.01
-    num_features = X.shape[0]
+    print("Modeling Logistic Regression")
+    
+    num_features = X_train.shape[0]    
+    learning_rate = 0.1
     num_iterations = 1500
+    
     model = LogRegModel(num_features, learning_rate, num_iterations)
     cost_hist_train = model.train(X_train,Y_train)
-    cost_hist_test, acc_test = get_accuracy(X_test, Y_test, model.classify)
-    return cost_hist_train, cost_hist_test, acc_test
+    
+    accuracy_testset = get_accuracy(X_test, Y_test, model.predict)
+    return cost_hist_train, accuracy_testset
 
 def model_NN(X, y, layer_dims):
     pass
 
-def split_data(X,y):
+def split_data(X,Y):
     """
     returns X_train,Y_train, X_test, Y_test
+    Eventually we'll also creave a cv to tune hyperparams
     """
-    pass
+    test_percentage = 0.2
+    train_percentage = 1 - test_percentage
+    m = X.shape[1]
+
+    test_indices = random.sample(range(m), int(0.2 * m))
+    train_indices = [x for x in list(range(m)) if x not in test_indices]
+
+    X_train = X[:, train_indices]
+    Y_train = Y[:, train_indices]
+    X_test = X[:, test_indices]
+    Y_test = Y[:, test_indices]
+
+    return X_train, Y_train, X_test, Y_test
     
 if __name__ == "__main__":
     # read in command line args
@@ -46,19 +67,9 @@ if __name__ == "__main__":
     y_data = np.genfromtxt(y_file, delimiter=',')
 
     # Format data
-    x_data = x_data.T    
-    y_data = y_data.reshape((1,y_data.shape[0]))
+    X = x_data.T    
+    Y = y_data.reshape((1,y_data.shape[0]))
+    X_train, Y_train, X_test, Y_test = split_data(X,Y)
 
-    print(x_data.shape)
-    print(y_data.shape)
-
-    
-    
-
-# Goals, run a logistic reg classifier on the cat training set
-# --> develop something to compare to
-# Code up an L-layer NN for the cat training set
-# -> Plot learning curve
-# -> start w/ small network -> go to medium -> large network
-# I'll add regularization later
-# If it's working, move on to SVM's!
+    cost_hist_train, acc_test = model_logreg(X_train, Y_train, X_test, Y_test)
+    print("Logistic Regression Accuracy on Test Set: {}".format(acc_test))
