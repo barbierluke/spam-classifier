@@ -4,6 +4,7 @@ from __future__ import division
 import random
 import numpy as np
 from models.log_reg import LogRegModel
+from models.nn_layer import NN_Model
 from pdb import set_trace
 
 def get_accuracy(X_test, Y_test, predict_func):
@@ -13,35 +14,6 @@ def get_accuracy(X_test, Y_test, predict_func):
     Y_predictions = predict_func(X_test)
     correct = np.sum(Y_predictions == Y_test)
     return (correct / Y_test.shape[1]) * 100
-
-def model_logreg(X_train, Y_train, X_test, Y_test):
-    """
-    Returns:
-    - cost_history_train
-    - accuracy on the test set
-    """
-    print("Modeling Logistic Regression")
-    
-    num_features = X_train.shape[0]    
-    learning_rate = 0.1
-    num_iterations = 1500
-    regularization_constant = 5
-
-    """
-    Diverging combos:
-    a = 0.1, lambda = 0.1
-    """
-    
-    model = LogRegModel(num_features, learning_rate, num_iterations, regularization_constant)
-    cost_hist_train = model.train(X_train,Y_train)
-
-    accuracy_trainset = get_accuracy(X_train, Y_train, model.predict)    
-    accuracy_testset = get_accuracy(X_test, Y_test, model.predict)
-
-    return accuracy_trainset, accuracy_testset
-
-def model_NN(X, y, layer_dims):
-    pass
 
 def split_data(X,Y):
     """
@@ -61,6 +33,38 @@ def split_data(X,Y):
     Y_test = Y[:, test_indices]
 
     return X_train, Y_train, X_test, Y_test
+
+def model_logreg(X_train, Y_train, X_test, Y_test):
+    """
+    Returns:
+    - cost_history_train
+    - accuracy on the test set
+    """
+    print("Modeling Logistic Regression")
+    
+    num_features = X_train.shape[0]    
+    learning_rate = 2
+    num_iterations = 50000
+    regularization_constant = 0
+
+    model = LogRegModel(num_features, learning_rate, num_iterations, regularization_constant)
+    cost_hist_train = model.train(X_train,Y_train)
+
+    accuracy_trainset = get_accuracy(X_train, Y_train, model.predict)    
+    accuracy_testset = get_accuracy(X_test, Y_test, model.predict)
+
+    return accuracy_trainset, accuracy_testset
+
+def model_nn(X_train, Y_train, X_test, Y_test, layer_dims):
+    alpha = 0.05
+    num_iters = 1000
+
+    model = NN_Model(layer_dims, alpha, num_iters)
+    costs = model.train(X_train, Y_train)
+    acc_test = get_accuracy(X_test, Y_test, model.predict)
+    acc_train = get_accuracy(X_train, Y_train, model.predict)
+    
+    return acc_train, acc_test
     
 if __name__ == "__main__":
     # read in command line args
@@ -78,8 +82,12 @@ if __name__ == "__main__":
     X = x_data.T    
     Y = y_data.reshape((1,y_data.shape[0]))
     X_train, Y_train, X_test, Y_test = split_data(X,Y)
-
-    acc_train, acc_test = model_logreg(X_train, Y_train, X_test, Y_test)
     
-    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train))
-    print("Logistic Regression Accuracy on Test Set: {}".format(acc_test))
+#    acc_train_log, acc_test_log = model_logreg(X_train, Y_train, X_test, Y_test)
+    layer_dims = [X_train.shape[0],20,20,20,20,20,20,20,1]
+    acc_train_nn, acc_test_nn = model_nn(X_train, Y_train, X_test, Y_test, layer_dims)
+    
+#    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train_log))
+ #   print("Logistic Regression Accuracy on Test Set: {}".format(acc_test_log))
+    print("NN Accuracy on Train Set: {}".format(acc_train_nn))
+    print("NN Accuracy on Test Set: {}".format(acc_test_nn))

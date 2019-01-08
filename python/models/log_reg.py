@@ -12,7 +12,7 @@ Uses a logistic cost function w/ sigmoid activation function
 
 class LogRegModel:
 
-    prediction_threshold = 0.5
+    prediction_threshold = 0.7
     
     def __init__(self, num_features, learning_rate, num_iterations, regularization_constant):
         self.learning_rate = learning_rate
@@ -49,7 +49,7 @@ class LogRegModel:
     def compute_cost(self, A, Y):
         m = Y.shape[1]
         W = self.parameters["W"]
-        return (-1/m) * ( np.dot(Y, np.log(A).T) + np.dot(1-Y, np.log(1-A).T - self.reg_constant * np.dot(W,W.T) ))
+        return (-1/m) * ( np.dot(Y, np.log(A).T) + np.dot(1-Y, np.log(1-A).T - (self.reg_constant/2) * np.dot(W,W.T) ))
             
     def _activate(self,X):
         W = self.parameters["W"]
