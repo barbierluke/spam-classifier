@@ -3,6 +3,7 @@
 from __future__ import division
 import random
 import numpy as np
+import argparse
 from models.log_reg import LogRegModel
 from models.nn_layer import NN_Model
 from pdb import set_trace
@@ -58,7 +59,7 @@ def model_logreg(X_train, Y_train, X_test, Y_test):
 def model_nn(X_train, Y_train, X_test, Y_test, layer_dims):
     print("Modeling Neural Network w/ layers: {}".format(layer_dims))
     alpha = 0.05
-    num_iters = 1000
+    num_iters = 1500
 
     model = NN_Model(layer_dims, alpha, num_iters)
     costs = model.train(X_train, Y_train)
@@ -68,9 +69,10 @@ def model_nn(X_train, Y_train, X_test, Y_test, layer_dims):
     return acc_train, acc_test
     
 if __name__ == "__main__":
-    # read in command line args
-    # load params
-    
+    parser = argparse.ArgumentParser(description="Control which models to train on the spam data set")
+    parser.add_argument('model', help="Train a logistic regression model")
+    args = parser.parse_args()
+    model = args.model
     # call either, runLogReg, runSmallNN, runMediumNN, runLargeNN
     
     x_file = open('data/practice/X_data.csv', "r")
@@ -83,12 +85,17 @@ if __name__ == "__main__":
     X = x_data.T    
     Y = y_data.reshape((1,y_data.shape[0]))
     X_train, Y_train, X_test, Y_test = split_data(X,Y)
-    
-    acc_train_log, acc_test_log = model_logreg(X_train, Y_train, X_test, Y_test)
-    layer_dims = [X_train.shape[0],20,20,20,20,20,20,20,1]
-    acc_train_nn, acc_test_nn = model_nn(X_train, Y_train, X_test, Y_test, layer_dims)
-    
-    print("Logistic Regression Accuracy on Train Set: {}".format(acc_train_log))
-    print("Logistic Regression Accuracy on Test Set: {}".format(acc_test_log))
-    print("NN Accuracy on Train Set: {}".format(acc_train_nn))
-    print("NN Accuracy on Test Set: {}".format(acc_test_nn))
+
+    if model == "l":
+        acc_train_log, acc_test_log = model_logreg(X_train, Y_train, X_test, Y_test)
+        print("Logistic Regression Accuracy on Train Set: {}".format(acc_train_log))
+        print("Logistic Regression Accuracy on Test Set: {}".format(acc_test_log))
+    elif model == "nn":
+        layer_dims = [X_train.shape[0],20,5,1]
+        acc_train_nn, acc_test_nn = model_nn(X_train, Y_train, X_test, Y_test, layer_dims)
+        print("NN Accuracy on Train Set: {}".format(acc_train_nn))
+        print("NN Accuracy on Test Set: {}".format(acc_test_nn))
+    else:
+        print("Unrecognized cmd argument, pass in either 'nn' or 'l'")
+
+
